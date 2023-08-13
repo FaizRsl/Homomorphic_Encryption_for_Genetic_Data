@@ -27,14 +27,14 @@ int main() {
     fclose(cloud_key);
 
     //generate encrypt the 16 bits of 51
-    int16_t plaintext1 = 5;
+    int16_t plaintext1 = 60;
     LweSample* ciphertext1 = new_gate_bootstrapping_ciphertext_array(16, params);
     for (int i=0; i<16; i++) {
         bootsSymEncrypt(&ciphertext1[i], (plaintext1>>i)&1, key);
     }
 
     //generate encrypt the 16 bits of 49
-    int16_t plaintext2 = 8;
+    int16_t plaintext2 = 40;
     LweSample* ciphertext2 = new_gate_bootstrapping_ciphertext_array(16, params);
     for (int i=0; i<16; i++) {
         bootsSymEncrypt(&ciphertext2[i], (plaintext2>>i)&1, key);

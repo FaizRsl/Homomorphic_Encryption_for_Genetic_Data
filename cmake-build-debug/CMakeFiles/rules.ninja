@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/fdl9/Desktop/FYP/FYP -B/Users/fdl9/Desktop/FYP/FYP/cmake-build-debug
+  command = /Applications/CLion.app/Contents/bin/cmake/mac/bin/cmake --regenerate-during-build -S/Users/fdl9/Desktop/FYP/Homomorphic_Encryption_for_Genetic_Data -B/Users/fdl9/Desktop/FYP/Homomorphic_Encryption_for_Genetic_Data/cmake-build-debug
   description = Re-running CMake...
   generator = 1
 
