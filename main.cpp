@@ -1,6 +1,8 @@
 #include <tfhe/tfhe.h>
 #include <tfhe/tfhe_io.h>
 #include <iostream>
+#include <chrono>
+#include <iomanip>
 #include "operation.cpp"
 #include "result.cpp"
 using namespace std;
@@ -79,7 +81,14 @@ int main() {
     delete_gate_bootstrapping_secret_keyset(key);
     delete_gate_bootstrapping_parameters(params);
 
-    int choice = operatorOptions();
-    result(choice);
+    while(true){
+        auto start = chrono::high_resolution_clock::now();
+        int choice = operatorOptions();
+        result(choice);
+        auto end = chrono::high_resolution_clock::now();
+        auto duration = chrono::duration_cast<chrono::microseconds>(end - start).count();
+        double durationInSeconds = static_cast<double>(duration) / 1000000;
+        cout << "Time taken: " << fixed << setprecision(2) << durationInSeconds << " seconds" << endl;
+    }
 }
 
