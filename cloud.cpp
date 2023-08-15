@@ -9,6 +9,9 @@ void addition(LweSample *result, const LweSample *a, const LweSample *b, const i
 void additionCarryGen(LweSample* carryGen, const LweSample* a, const LweSample* b, const TFheGateBootstrappingCloudKeySet* bk);
 void additionCarryResult(LweSample* carryResult, LweSample* carryProp, LweSample* cINBit, const LweSample* a, const LweSample* b, const TFheGateBootstrappingCloudKeySet* bk);
 void subtraction(LweSample *result, const LweSample *a, const LweSample *b, const int nb_bits, const TFheGateBootstrappingCloudKeySet *bk);
+void equality(LweSample *result, const LweSample *a, const LweSample *b, const int nb_bits, const TFheGateBootstrappingCloudKeySet *bk);
+void select(LweSample* result, const LweSample* s, const LweSample* a, const LweSample* b, const int nb_bits, const TFheGateBootstrappingCloudKeySet* bk);
+
 void cloud();
 
 void cloud(){
@@ -31,6 +34,15 @@ void cloud(){
     for (int i=0; i<16; i++) import_gate_bootstrapping_ciphertext_fromFile(cloud_data, &ciphertext2[i], params);
     fclose(cloud_data);
 
+    //selection input
+    /*int input;
+
+    cout << "Choose which item to select: (0 for a), (1 for b)" << endl;
+    cin >> input;
+
+    LweSample* temp = new_gate_bootstrapping_ciphertext(bk->params);
+    bootsCONSTANT(temp, input, bk);*/
+
     // cout << ciphertext1 << endl;
     // cout << ciphertext1->a << endl;
     // cout << ciphertext1->b << endl;
@@ -39,9 +51,12 @@ void cloud(){
     //do some operations on the ciphertexts: here, we will compute the
     //minimum of the two
     LweSample* result = new_gate_bootstrapping_ciphertext_array(16, params);
-    //addition(result, ciphertext1, ciphertext2, 16, bk);
+    addition(result, ciphertext1, ciphertext2, 16, bk);
     //minimum(result, ciphertext1, ciphertext2, 16, bk);
-    subtraction(result, ciphertext1, ciphertext2, 16, bk);
+    //subtraction(result, ciphertext1, ciphertext2, 16, bk);
+    //equality(result, ciphertext1, ciphertext2, 16, bk);
+    //select(result, temp, ciphertext1, ciphertext2, 16, bk);
+
 
     //export the 32 ciphertexts to a file (for the cloud)
     FILE* answer_data = fopen("answer.data","wb");
@@ -60,6 +75,7 @@ void cloud(){
 //   input: ai and bi the i-th bit of a and b
 //          lsb_carry: the result of the comparison on the lowest bits
 //   algo: if (a==b) return lsb_carry else return b 
+/*
 void compare_bit(LweSample* result, const LweSample* a, const LweSample* b, const LweSample* lsb_carry, LweSample* tmp, const TFheGateBootstrappingCloudKeySet* bk) {
     bootsXNOR(tmp, a, b, bk);
     //cout << "si/tmp1: ";
@@ -104,7 +120,9 @@ void minimum(LweSample* result, const LweSample* a, const LweSample* b, const in
 
     delete_gate_bootstrapping_ciphertext_array(2, tmps);    
 }
+*/
 
+/*
 void additionCarryGen(LweSample* carryGen, const LweSample* a, const LweSample* b, const TFheGateBootstrappingCloudKeySet* bk){
     bootsAND(carryGen, a, b, bk);
 }
@@ -158,8 +176,9 @@ void addition(LweSample *result, const LweSample *a, const LweSample *b, const i
     delete_gate_bootstrapping_ciphertext_array(nb_bits, carryGen);
     delete_gate_bootstrapping_ciphertext_array(nb_bits+1, cINBit);
 }
+*/
 
-void subtraction(LweSample *result, const LweSample *a, const LweSample *b, const int nb_bits, const TFheGateBootstrappingCloudKeySet *bk){
+/*void subtraction(LweSample *result, const LweSample *a, const LweSample *b, const int nb_bits, const TFheGateBootstrappingCloudKeySet *bk){
     LweSample* cINBit = new_gate_bootstrapping_ciphertext_array(nb_bits+1, bk->params);
     LweSample* invert = new_gate_bootstrapping_ciphertext_array(nb_bits, bk->params);
     LweSample* temp = new_gate_bootstrapping_ciphertext(bk->params);
@@ -191,11 +210,11 @@ void subtraction(LweSample *result, const LweSample *a, const LweSample *b, cons
         bootsXOR(&cINBit[i+1], temp, temp2, bk);
     }
 
-    /*cout << "invert: ";
+    *//*cout << "invert: ";
     for(int i=0; i<nb_bits; i++){
         cout << bootsSymDecrypt(&invert[i], key);
     }
-    cout << endl;*/
+    cout << endl;*//*
 
     addition(result, invert, a, nb_bits, bk);
 
@@ -207,3 +226,35 @@ void subtraction(LweSample *result, const LweSample *a, const LweSample *b, cons
     delete_gate_bootstrapping_ciphertext_array(nb_bits+1, cINBit);
 
 }
+
+void equality(LweSample *result, const LweSample *a, const LweSample *b, const int nb_bits, const TFheGateBootstrappingCloudKeySet *bk){
+    LweSample* tmps = new_gate_bootstrapping_ciphertext_array(nb_bits, bk->params);
+
+    // Compare each bit of a and b
+    for (int i = 0; i < nb_bits; i++) {
+        bootsXNOR(&tmps[i], &a[i], &b[i], bk);
+    }
+
+    // Initialize the result to 1 (equal)
+    bootsCONSTANT(result, 1, bk);
+
+    // Check if any XNOR result is 0 (not equal)
+    for (int i = 0; i < nb_bits; i++) {
+        // If any bit is not equal, set the result to 0
+        bootsAND(result, result, &tmps[i], bk);
+    }
+
+    delete_gate_bootstrapping_ciphertext_array(nb_bits, tmps);
+}
+
+void select(LweSample* result, const LweSample* s, const LweSample* a, const LweSample* b, const int nb_bits, const TFheGateBootstrappingCloudKeySet* bk) {
+    FILE* secret_key = fopen("secret.key","rb");
+    TFheGateBootstrappingSecretKeySet* key = new_tfheGateBootstrappingSecretKeySet_fromFile(secret_key);
+
+    for (int i = 0; i < nb_bits; i++) {
+        bootsMUX(&result[i], s, &a[i], &b[i], bk);
+        //cout << "result[" << i-1 << "]: " << bootsSymDecrypt(&result[i-1], key) << endl;
+    }
+}*/
+
+

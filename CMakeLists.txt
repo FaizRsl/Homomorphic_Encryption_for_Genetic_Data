@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.17)
 project(FYP)  # Replace "YourProjectName" with your actual project name
 
 # Add all your source files here
-add_executable(main test.cpp)  # Add all your .cpp files here
+add_executable(main main.cpp)  # Add all your .cpp files here
 
 set(CMAKE_BUILD_TYPE Debug)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g")
